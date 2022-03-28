@@ -1,27 +1,31 @@
-function outputArcCalendarEvents() {
-   var calendarId = 'grubhub.com_qojpsj5r6pgki3rvjk07qbhtn8@group.calendar.google.com';
-   var events = Calendar.Events.list(calendarId, {maxResults: 1000});
+function calendarEmailReminder() {
+  var tod = new Date();
+  var tomm = new Date(tod);
+  tomm.setDate(tomm.getDate() + 1);
 
-    try {
-    const doc = DocumentApp.openByUrl("https://docs.google.com/document/d/1uNopCLhtizI4gneVEI9Zo9pHbits4xFCNm77kZWqKqI/")
+  const email = Session.getActiveUser().getEmail();
+  const my_login = Session.getActiveUser().getUserLoginId();
+  var events_for_tomm = tomm.toDateString()+ ": Schedule for " + my_login
+  const subject = events_for_tomm;
+  var my_body = "\n\n"
 
-    var body = doc.getBody();
-    body.clear();
-    var text = body.editAsText();
-    var curr_row = '';
-    var offset = 0;
-    for (var i = events.items.length - 1; i >= 0; i--) {
-      var event = events.items[i];
-      var localDate = event.start.dateTime.substring(0,10)
-      curr_row = localDate + ":       " + event.summary + "\n\n"
-      text.appendText(curr_row)
-      Logger.log("Offset = %d, Length of curr_row = %d, i = %d, link = %s", offset, curr_row.length, i, event.htmlLink)
-      text.setLinkUrl(offset, offset + curr_row.length - 1, event.htmlLink)
-      offset = offset + curr_row.length
-    }
+  var events2 = CalendarApp.getEventsForDay(tomm)
+  for (var i = 0; i < events2.length; i++) {
+    var i_event = events2[i];
+    my_body += i_event.getStartTime().toLocaleTimeString() + " - " + i_event.getEndTime().toLocaleTimeString() + " \t:\t" + i_event.getTitle() + "\n\n"
+  }
+  Logger.log("Subject:  %s", subject)
+  Logger.log("Body: %s", my_body)
+  if (my_body === "\n\n" && events2.length === 0) {
+    my_body = "\n\n\nNo events scheduled for today."
+  }
+  try {
+    GmailApp.sendEmail(email, subject, my_body);
   } catch (err) {
     Logger.log('Failed with error %s', err.message);
   }
 }
 
-
+function doGet(e) {
+  calendarEmailReminder()  
+}
