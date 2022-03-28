@@ -1,6 +1,6 @@
 function outputArcCalendarEvents() {
    var calendarId = 'grubhub.com_qojpsj5r6pgki3rvjk07qbhtn8@group.calendar.google.com';
-   var events = Calendar.Events.list(calendarId, {maxResults: 1000});
+   var events = Calendar.Events.list(calendarId, {'maxResults': 2500, 'showDeleted': false, 'orderBy': 'startTime', 'singleEvents': true});
 
     try {
     const doc = DocumentApp.openByUrl("https://docs.google.com/document/d/1uNopCLhtizI4gneVEI9Zo9pHbits4xFCNm77kZWqKqI/")
